@@ -1,4 +1,4 @@
 RewriteEngine on
-RewriteCond $1 !^(index\.php|images|uploads|assets|fonts|js|robots\.txt)
+RewriteCond $1 !^(index\.php|assets|uploads|images|fonts|js|robots\.txt)
 RewriteRule ^(.*)$ /reward/index.php/$1 [L]
 

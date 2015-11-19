@@ -1,30 +1,4 @@
-<?php
-defined('BASEPATH') OR exit('No direct script access allowed');
-?>
-<!DOCTYPE html>
-<html lang="en">
 
-<head>
-
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
-    <meta name="author" content="">
-
-    <title><?= $title; ?></title>
-
-    <!-- Bootstrap Core CSS -->
-    <link href="<?=base_url();?>assets/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Jquery and my Custom JS validation -->
-    <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
-    <script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
-    <script src="<?=base_url();?>assets/js/validation.js"></script>
-
-
-</head>
-<body>
 <div class="container">
     <header>
         <div class="jumbotron">
@@ -35,9 +9,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     </header>
     <div class="row">
 
-        <?php if($this->session->flashdata('message')){echo $this->session->flashdata('message');}?>
+
         <?= form_open('homecontroller/contact');?>
             <div class="col-lg-6">
+                <?php if($message)
+                    echo $message;
+                ?>
+
+
                 <div class="validation">
                 </div>
                 <div class="well well-sm"><strong><span class="glyphicon glyphicon-asterisk"></span>Задължителни полета</strong></div>
@@ -82,18 +61,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     </div>
                     <?= form_error('InputMessage') ?>
                 </div>
-
+                <div class="g-recaptcha"   name="catpcha-g"  data-sitekey="6LdXwxATAAAAAOVHEcYpN-_DPXXOSG1OTUGJx5wp"></div>
+                <?php if($this->session->flashdata('message')){echo $this->session->flashdata('message');}?>
                 <input type="submit" name="submit" id="submit" value="Изпрати" class="btn btn-info pull-right">
 
             </div>
         </form>
 
     </div>
-    <div class="footer">
-        <p>Example footer &copy; 2015</p>
-    </div>
-</div>
-</body>
-</html>
+
 
 

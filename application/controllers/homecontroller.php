@@ -13,7 +13,12 @@ class homeController extends MY_Controller
 
     public function index()
     {
-        $this->load->view('welcome', array('title' => 'Welcome'));
+        $data['title'] = 'Welcome';
+        $data['message'] = '';
+
+        $this->load->view('layouts/header',$data);
+        $this->load->view('welcome',$data);
+        $this->load->view('layouts/footer',$data);
     }
 
     /**
@@ -30,20 +35,41 @@ class homeController extends MY_Controller
         $phone = $this->input->post('InputPhone');
         $message = $this->input->post('InputMessage');
 
+
+        $secret = '6LdXwxATAAAAAAQN4ylLFOOntwuglINjWpbp_oEA';
+        $captcha = $this->input->post('g-recaptcha-response');
+        $url = 'https://www.google.com/recaptcha/api/siteverify';
+
+        $rsp = file_get_contents($url.'?secret='.$secret.'&response='.$captcha);
+
+        $arr = json_decode($rsp,true);
+
+
+
         $this->form_validation->set_rules('InputName', 'Име', 'required|min_length[3]|trim|xss_clean');
         $this->form_validation->set_rules('InputEmail', 'Email', 'required|valid_email|min_length[3]|trim|xss_clean');
         $this->form_validation->set_rules('InputSubject', 'Заглавие', 'required|min_length[3]|trim|xss_clean');
         $this->form_validation->set_rules('InputPhone', 'Телефон', 'is_natural|trim|xss_clean');
         $this->form_validation->set_rules('InputMessage', 'Съобщение', 'required|min_length[10]|trim|xss_clean');
         $this->form_validation->set_error_delimiters('<div class="alert alert-danger">', '</div>');
-
         $this->form_validation->set_message('message','Невалиден телефонен номер');
 
         // We check if the validation is right
         if ($this->form_validation->run() == FALSE) {
 
-            $this->load->view('welcome', array('title' => 'Contact Form'));
+            $data['title'] = 'Contact Form';
+            $data['message'] = '';
+            $this->load->view('layouts/header',$data);
+            $this->load->view('welcome',$data);
+            $this->load->view('layouts/footer',$data);
 
+        }
+        elseif($arr['success'] == FALSE){
+            $data['title'] = 'Contact Form';
+            $data['message'] = '<p class="alert alert-danger">Не сте попълнили captcha проверката!</p>';
+            $this->load->view('layouts/header',$data);
+            $this->load->view('welcome',$data);
+            $this->load->view('layouts/footer',$data);
         }
         else
         {
@@ -53,8 +79,11 @@ class homeController extends MY_Controller
             $this->load->model('contact');
             $this->contact->insertContact($email,$name,$subject,$phone,$message);
             $this->_sendEmail($email,$name,$subject,$phone,$message);
-            $this->session->set_flashdata('message', '<p class="alert alert-success">Вашето съобщение е изпратено успешно!</p>');
-            $this->load->view('welcome', array('title' => 'Contact Form'));
+            $data['message'] = '<p class="alert alert-info">Вашето съобщение е изпратено успешно!</p>';
+            $data['title'] = 'Contact Form';
+            $this->load->view('layouts/header',$data);
+            $this->load->view('success_send',$data);
+            $this->load->view('layouts/footer',$data);
         }
     }
 
@@ -64,6 +93,8 @@ class homeController extends MY_Controller
      * @param $subject
      * @param $message
      */
+
+
 
 
 
