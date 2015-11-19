@@ -32,7 +32,7 @@ class Migration_Create_Blog extends  CI_Migration
 
             ),'picture' => array(
                 'type' => 'VARCHAR',
-                'constraint' => '350',
+                'constraint' => '255',
                 'null' => 'TRUE',
 
             ),

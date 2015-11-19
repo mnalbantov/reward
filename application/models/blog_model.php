@@ -49,11 +49,12 @@ class Blog_Model extends  CI_Model
 
 
     }
-    public function get_posts()
+    public function get_posts($limit,$start)
     {
         $this->db->join('users','users.id = blog.author_id');
         $this->db->order_by('date_published','DESC');
-         $query = $this->db->get('blog');
+        $this->db->limit($limit,$start);
+        $query = $this->db->get('blog');
         if($query->num_rows() > 0)
         {
             return $query->result();
@@ -62,6 +63,59 @@ class Blog_Model extends  CI_Model
         {
             return false;
         }
+    }
+
+    public function count_views($id)
+    {
+        $this->db->select('views');
+        $this->db->where('blog_id',$id);
+        $q = $this->db->get('blog');
+        if($q->num_rows() > 0)
+        {
+            foreach($q->result() as $row)
+            {
+                $views = $row->views;
+            }
+            return $views;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    public function update_post($id,$title,$post)
+    {
+        $updateWhere = array(
+            'blog_id'=>$id
+        );
+        $data = array(
+            'blog_title'=>$title,
+            'short_description'=>$post,
+            'post'=>$post,
+            'date_published'=>null
+        );
+
+        $this->db->update('blog',$data,$updateWhere);
+    }
+    public function delete_post($post_id)
+    {
+        $this->db->where('blog_id',$post_id);
+        $this->db->delete('blog');
+    }
+
+    public function update_view_count($post_id)
+    {
+        $this->db->set('views','views+1',FALSE);
+        $this->db->where('blog_id',$post_id);
+        $this->db->update('blog');
+    }
+
+    public function total_posts()
+    {
+       $q = $this->db->count_all('blog');
+        return $q;
+
+
     }
     function get_images() {
 

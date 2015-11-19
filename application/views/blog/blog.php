@@ -30,7 +30,7 @@
             <h2>
                 <a href="<?=site_url('blog/post').'/'.$post->blog_id; ?>"><?=$post->blog_title; ?></a>
             </h2>
-            <p><i class="fa fa-clock-o"></i> Публикувано на <?=$post->date_published; ?> от <?=$post->first_name; ?></p>
+            <p><i class="fa fa-clock-o"></i> Публикувано на <?=$post->date_published; ?> от <?=$post->first_name; ?> | Видяно <?= $post->views;?></p>
             <hr>
 
                 <a href="<?=site_url('blog/post').'/'.$post->blog_id; ?>">
@@ -51,6 +51,9 @@
 
 
         </div>
+<ul class="pagination">
+    <li><a href="#"><?= $links; ?></a></li>
+</ul>
 
     <!-- /.row -->
 

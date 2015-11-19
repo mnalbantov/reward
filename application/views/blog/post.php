@@ -27,8 +27,12 @@
             <hr>
 
             <!-- Date/Time -->
-            <p><i class="fa fa-clock-o"></i> Публикувано на <?=$p->date_published;?></p>
-
+            <?php if($this->ion_auth->is_admin()):?>
+                 <p><i class="fa fa-clock-o"></i> Публикувано на <?=$p->date_published;?> |&nbsp; <i class="glyphicon glyphicon-eye-open"></i>&nbsp;<?=$views;?> пъти
+                     <a href="<?=site_url('blog/edit_post').'/'.$p->blog_id;?>" class="btn btn-primary">Редактирай</a>&nbsp;<a href="<?=site_url('blog/delete_post').'/'.$p->blog_id;;?>" class="btn btn-danger">Изтрий</a></p>
+         <?php else:?>
+            <p><i class="fa fa-clock-o"></i> Публикувано на <?=$p->date_published;?> |&nbsp; <i class="glyphicon glyphicon-eye-open"></i>&nbsp;<?=$views;?> пъти</p>
+        <?php endif;?>
             <hr>
 
             <!-- Preview Image -->

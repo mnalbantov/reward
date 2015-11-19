@@ -19,9 +19,18 @@ class Blog extends  MY_Controller
         {
             $user = $this->ion_auth->user()->row();
         }
+        $this->load->library('pagination');
 
+        $totalPosts = $this->blog_model->total_posts();
+        $config['base_url'] = site_url().'blog/index';
+        $config['total_rows'] = $totalPosts;
+        $config['per_page'] = 5;
+        $config['uri_segment'] = 3;
+
+        $this->pagination->initialize($config);
         $data['title'] = 'Блог';
-        $data['posts'] = $this->blog_model->get_posts();
+        $data['posts'] = $this->blog_model->get_posts($config['per_page'],$this->uri->segment(3));
+        $data['links'] = $this->pagination->create_links();
         $this->load->view('layouts/header',$data);
         $this->load->view('blog/blog',$data);
         $this->load->view('layouts/footer',$data);
@@ -82,10 +91,69 @@ class Blog extends  MY_Controller
         {
             $data['title'] = $row->blog_title;
         }
+        $update_count = $this->blog_model->update_view_count($id);
+        $counter = $this->blog_model->count_views($id);
+        $data['views'] = $counter;
         $data['post'] = $this->blog_model->get_post($id);
         $this->load->view('layouts/header',$data);
         $this->load->view('blog/post');
         $this->load->view('layouts/footer');
+    }
+
+    public function edit_post($id)
+    {
+        if(! $this->ion_auth->is_admin())
+        {
+            redirect('blog');
+        }
+        foreach($this->blog_model->get_post($id) as $row)
+        {
+            $data['title'] = 'Редакция -'.$row->blog_title;
+            break;
+        }
+        $data['post'] = $this->blog_model->get_post($id);
+        $this->load->view('layouts/header',$data);
+        $this->load->view('blog/edit_post',$data);
+        $this->load->view('layouts/footer');
+
+
+
+        if($_POST)
+        {
+            $this->form_validation->set_rules('InputSubject','Заглавие','required|trim|min_length[4]');
+            $this->form_validation->set_rules('InputPost','Статия','required|trim|min_length[50]');
+            $title = $this->input->post('InputSubject');
+            $post = $this->input->post('InputPost');
+            if($this->form_validation->run() == FALSE)
+            {
+                $data['post'] = $this->blog_model->get_post($id);
+            }
+            else
+            {
+                $this->blog_model->update_post($id,$title,$post);
+                redirect('blog/post'.'/'.$id);
+            }
+        }
+    }
+    public function delete_post($id)
+    {
+        if(! $this->ion_auth->is_admin())
+        {
+            redirect('blog');
+        }
+        $data['title'] = 'Изтриване на публикация';
+        $data['post'] = $this->blog_model->get_post($id);
+        $this->load->view('layouts/header',$data);
+        $this->load->view('blog/delete_post');
+    }
+    public  function confirm_delete($id)
+    {
+        if(! $this->ion_auth->is_admin())
+        {
+            redirect('blog');
+        }
+        $this->blog_model->delete_post($id);
+        redirect('blog');
     }
 
     public function upload()
