@@ -10,6 +10,7 @@
                 </li>
                 <?php if($this->ion_auth->logged_in()): ?>
                 <li><a href="<?=site_url('blog/add_post');?>">Добави статия</a>
+                <li><a href="<?=site_url('auth');?>">Админ секция</a>
                 <?php else:?>
                     <li class="active" >За да добавяте статии,трябва да се регистрирате или да влезнете в системата :) </li>
                     <a href="<?=site_url('auth') ?>">Вход</a>

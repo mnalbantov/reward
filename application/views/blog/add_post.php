@@ -23,7 +23,7 @@
     <div class="form-group">
         <label for="InputMessage">Статия</label>
         <div class="input-group">
-            <?= form_textarea('InputPost', $this->input->post('InputPost'), 'class="form-control" id="InputPost" " required '); ?>
+            <?= form_textarea('InputPost', $this->input->post('InputPost'), 'class="ckeditor"  id="InputPost" " required '); ?>
             <span class="input-group-addon"><span class="glyphicon glyphicon-asterisk"></span></span>
         </div>
         <?= form_error('InputPost') ?>

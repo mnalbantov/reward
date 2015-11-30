@@ -9,8 +9,8 @@ class Migration_Create_Blog extends  CI_Migration
             'blog_id' => array(
                 'type' => 'INT',
                 'constraint' => '5',
-                'unsigned' => 'TRUE',
-                'auto_increment' => 'TRUE'
+                'unsigned' => TRUE,
+                'auto_increment' => TRUE
             ),
             'blog_title' => array(
                 'type' => 'VARCHAR',
@@ -23,7 +23,7 @@ class Migration_Create_Blog extends  CI_Migration
             ),
             'post' => array(
                 'type' => 'TEXT',
-                'null' => 'TRUE',
+                'null' => TRUE
 
             ),
             'author_id' => array(
@@ -33,7 +33,7 @@ class Migration_Create_Blog extends  CI_Migration
             ),'picture' => array(
                 'type' => 'VARCHAR',
                 'constraint' => '255',
-                'null' => 'TRUE',
+                'null' => TRUE,
 
             ),
             'date_published' => array(

@@ -1,4 +1,4 @@
-<?php if($post):
+<?php if($post && is_array($post)):
 foreach($post as $p):?>
 <!-- Page Heading/Breadcrumbs -->
 <div class="row">

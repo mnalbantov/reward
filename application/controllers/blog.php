@@ -7,40 +7,40 @@ class Blog extends  MY_Controller
      */
     public function __construct()
     {
-     parent::__construct();
-        $this->load->library(array('migration','ion_auth','form_validation'));
+        parent::__construct();
+        $this->load->library(array('migration', 'ion_auth', 'form_validation'));
         $this->load->helper(array('form', 'url'));
         $this->migration->current();
         $this->load->model('blog_model');
     }
-    public function index(){
 
-        if($this->ion_auth->logged_in())
-        {
+    public function index()
+    {
+
+        if ($this->ion_auth->logged_in()) {
             $user = $this->ion_auth->user()->row();
         }
         $this->load->library('pagination');
 
         $totalPosts = $this->blog_model->total_posts();
-        $config['base_url'] = site_url().'blog/index';
+        $config['base_url'] = site_url() . 'blog/index';
         $config['total_rows'] = $totalPosts;
         $config['per_page'] = 5;
         $config['uri_segment'] = 3;
 
         $this->pagination->initialize($config);
         $data['title'] = 'Блог';
-        $data['posts'] = $this->blog_model->get_posts($config['per_page'],$this->uri->segment(3));
+        $data['posts'] = $this->blog_model->get_posts($config['per_page'], $this->uri->segment(3));
         $data['links'] = $this->pagination->create_links();
-        $this->load->view('layouts/header',$data);
-        $this->load->view('blog/blog',$data);
-        $this->load->view('layouts/footer',$data);
+        $this->load->view('layouts/header', $data);
+        $this->load->view('blog/blog', $data);
+        $this->load->view('layouts/footer', $data);
     }
 
     public function add_post()
     {
 
-        if(! $this->ion_auth->logged_in())
-        {
+        if (!$this->ion_auth->logged_in()) {
             redirect('blog');
         }
 
@@ -49,55 +49,76 @@ class Blog extends  MY_Controller
         $user_id = $this->input->post('user_id');
 
 
-        if($_POST)
-        {
+        if ($_POST) {
             $inputPic = $this->input->post('pic');
 
-            $pic_name = explode(DIRECTORY_SEPARATOR,$inputPic);
+            $pic_name = explode(DIRECTORY_SEPARATOR, $inputPic);
 
             $picture = $pic_name[6];
-            $this->form_validation->set_rules('InputSubject','Тема','required|trim|min_length[4]');
-            $this->form_validation->set_rules('InputPost','Статия','required|trim|min_length[50]');
-            $this->form_validation->set_rules('user_id','User_id','trim');
+            $this->form_validation->set_rules('InputSubject', 'Тема', 'required|trim|min_length[4]');
+            $this->form_validation->set_rules('InputPost', 'Статия', 'required|trim|min_length[50]');
+            $this->form_validation->set_rules('user_id', 'User_id', 'trim');
 
-            if($this->form_validation->run()== FALSE)
-            {
+            if ($this->form_validation->run() == FALSE) {
                 $data['title'] = 'Блог';
                 $data['images'] = $this->blog_model->get_images();
-                $this->load->view('layouts/header',$data);
-                $this->load->view('blog/add_post',array('error'=>''));
-                $this->load->view('layouts/footer',$data);
-            }
-            else
-            {
+                $this->load->view('layouts/header', $data);
+                $this->load->view('blog/add_post', array('error' => ''));
+                $this->load->view('layouts/footer', $data);
+            } else {
 
-                $this->blog_model->add_post($title,$post,$user_id,$picture);
+                $this->blog_model->add_post($title, $post, $user_id, $picture);
                 redirect('blog');
             }
         }
-            $data['title'] = 'Добавяне на статия';
-            $data['images'] = $this->blog_model->get_images();
-            $this->load->view('layouts/header',$data);
-            $this->load->view('blog/add_post',array('error'=>''));
-            $this->load->view('layouts/footer',$data);
-
-
+        $data['title'] = 'Добавяне на статия';
+        $data['images'] = $this->blog_model->get_images();
+        $this->load->view('layouts/header', $data);
+        $this->load->view('blog/add_post', array('error' => ''));
+        $this->load->view('layouts/footer', $data);
 
 
     }
-    public  function post($id)
+
+    public function post($id)
     {
-        foreach($this->blog_model->get_post($id) as $row)
-        {
-            $data['title'] = $row->blog_title;
-        }
-        $update_count = $this->blog_model->update_view_count($id);
-        $counter = $this->blog_model->count_views($id);
-        $data['views'] = $counter;
-        $data['post'] = $this->blog_model->get_post($id);
-        $this->load->view('layouts/header',$data);
-        $this->load->view('blog/post');
-        $this->load->view('layouts/footer');
+        //set validation rules
+        $this->form_validation->set_rules('commentor', 'Име', 'required|trim');
+        $this->form_validation->set_rules('email', 'Email', 'required|valid_email|trim');
+        $this->form_validation->set_rules('comment', 'Коментар', 'required');
+
+        if ($this->blog_model->get_post($id)) {
+            $update_count = $this->blog_model->update_view_count($id);
+            $counter = $this->blog_model->count_views($id);
+            $data['views'] = $counter;
+            $data['post'] = $this->blog_model->get_post($id);
+            $data['comments'] = $this->blog_model->get_post_comments($id);
+            $data['post_id'] = $id;
+            $data['total_comments'] = $this->blog_model->total_comments($id);
+
+            foreach ($this->blog_model->get_post($id) as $row) {
+                $data['title'] = $row->blog_title;
+            }
+
+
+            if ($this->form_validation->run() == FALSE) {
+                //if not valid
+                $this->load->view('layouts/header', $data);
+                $this->load->view('blog/post', $data);
+                $this->load->view('layouts/footer');
+            } else {
+                //if valid
+                $name = $this->input->post('commentor');
+                $email = strtolower($this->input->post('email'));
+                $comment = $this->input->post('comment');
+                $post_id = $this->input->post('post_id');
+
+                $this->blog_model->add_new_comment($post_id, $name, $email, $comment);
+                $this->session->set_flashdata('message', 'Успешно добавен коментар!');
+                redirect('blog/post/' . $id);
+            }
+        } else
+            show_404();
     }
 
     public function edit_post($id)

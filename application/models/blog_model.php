@@ -46,8 +46,20 @@ class Blog_Model extends  CI_Model
         {
             return false;
         }
+    }
 
-
+    function get_post_comments($post_id)
+    {
+        $this->db->where('post_id',$post_id);
+        $this->db->order_by('comment_date','DESC');
+        $query = $this->db->get('comments');
+        return $query->result();
+    }
+    function total_comments($id)
+    {
+        $this->db->like('post_id', $id);
+        $this->db->from('comments');
+        return $this->db->count_all_results();
     }
     public function get_posts($limit,$start)
     {
@@ -65,7 +77,18 @@ class Blog_Model extends  CI_Model
         }
     }
 
-    public function count_views($id)
+    function add_new_comment($post_id,$commentor,$email,$comment)
+    {
+        $data = array(
+            'post_id' => $post_id,
+            'comment_name' => $commentor,
+            'comment_email' => $email,
+            'comment_body' => $comment,
+        );
+        $this->db->insert('comments', $data);
+    }
+
+        public function count_views($id)
     {
         $this->db->select('views');
         $this->db->where('blog_id',$id);

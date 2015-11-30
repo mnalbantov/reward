@@ -32,13 +32,14 @@ foreach($post as $p):?>
 <div class="form-group">
     <label for="InputMessage">Статия</label>
     <div class="input-group">
-        <?= form_textarea('InputPost',$p->post, 'class="form-control" id="InputPost" " required '); ?>
+        <?= form_textarea('InputPost',$p->post, 'class="ckeditor" id="InputPost" " required '); ?>
         <span class="input-group-addon"><span class="glyphicon glyphicon-asterisk"></span></span>
     </div>
     <?= form_error('InputPost') ?>
 </div>
     <div class="form-group">
         <input type="submit" value="Редактрай" class="btn btn-success">
+        <a class="btn btn-default" href="<?=site_url('blog/post/'.$p->blog_id);?>">Отказ</a>
         </div>
 </div>
 <?php form_close(); endforeach; else:redirect('blog');endif;?>

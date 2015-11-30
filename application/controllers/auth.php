@@ -95,6 +95,87 @@ class Auth extends CI_Controller {
 		}
 	}
 
+	//register new user
+	public function register()
+	{
+		if($this->ion_auth->logged_in() || $this->ion_auth->is_admin())
+		{
+			redirect('blog');
+		}
+		$data['title'] = 'Регистрация';
+		$this->load->view('layouts/header', $data);
+		$this->load->view('auth/register', $data);
+		$this->load->view('layouts/footer');
+	}
+	public function validate_register()
+	{
+		$this->form_validation->set_rules('username','Потребителско име','required,|trim');
+		$this->form_validation->set_rules('email','Email','required,|trim|valid_email');
+		$this->form_validation->set_rules('f_name','Име','required,|trim');
+		$this->form_validation->set_rules('l_name','Фамилия','required,|trim');
+		$this->form_validation->set_rules('password','Парола','required,|trim');
+		$this->form_validation->set_rules('confirm-password','Парола','required,|trim|matches[password]');
+		$activation_code = $this->_generate_code(32);
+
+		if($this->form_validation->run() == FALSE)
+		{
+			$data['message'] = "";
+			$data['title'] = 'Регистрация';
+			$this->load->view('layouts/header', $data);
+			$this->load->view('auth/register', $data);
+			$this->load->view('layouts/footer');
+		}
+		else
+		{
+			$this->_send_mail($activation_code);
+			$this->ion_auth_model->add_user($activation_code);
+			$data['title'] = 'Успешна регистрация';
+			$data['message'] = 'Успешно изпратен email.Проверете вашата интернет поща и активирайте акаунта си!';
+			$this->load->view('layouts/header', $data);
+			$this->load->view('auth/register', $data);
+			$this->load->view('layouts/footer');
+		}
+	}
+	function _send_mail($activation_code) {
+
+		$username = $this->input->post(
+			'username');
+		$mail_to = $this->input->post('email');
+		$config = array(
+			'protocol' => 'smtp',
+			'smtp_host' => 'ssl://smtp.gmail.com',
+			'smtp_port' => 465,
+			'smtp_user' => 'mnalbantov@gmail.com',
+			'smtp_pass' => '0898656630.',
+			'wordwrap' => true,
+			'mailtype' => 'html',
+		);
+		$this->load->library('email', $config);
+		$this->email->set_newline("\r\n");
+		$this->email->from('mnalbantov@gmail.com', 'Admin - Nalbantov');
+		$this->email->to($mail_to);
+		$this->email->subject('Активиране на потребителски акаунт');
+		$message = 'Здравейте '
+			. $username.'<br/>'
+			.'Вашата регистрация е почти готова.<br/>'
+			. 'За да активирате профила си отворете <br/>'
+			.'<a href="'.site_url('register/activate') . '/' . $username . '/' . $activation_code.'">този линк</a>';
+		$this->email->message($message);
+		if ($this->email->send()) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	//generate activation key for users activation
+	function _generate_code($len) {
+		$key = '123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKMMNOPKQRSTUVWXYZL';
+		$str = '';
+		for ($i = 0; $i < $len; $i+= 1) {
+			$str .=substr($key, mt_rand(0, strlen($key) - 1), 1);
+		}
+		return $str;
+	}
 	// log the user out
 	function logout()
 	{
@@ -670,6 +751,36 @@ class Auth extends CI_Controller {
 		);
 
 		$this->_render_page('auth/edit_user', $this->data);
+	}
+
+	// delete user
+	public  function delete_user($id)
+	{
+		if($this->ion_auth->is_admin())
+		{
+			$data['title'] = 'Изтриване на потребител';
+			$data['user_id'] = $id;
+			$this->load->view('layouts/header',$data);
+			$this->load->view('auth/delete_user',$data);
+			$this->load->view('layouts/footer');
+		}
+		else
+		{
+			show_404('Нямате администраторски права,за да достъпите тази страница!');
+		}
+	}
+	function confirm_delete($id)
+	{
+		if($this->ion_auth->is_admin())
+		{
+				$this->ion_auth_model->delete_user($id);
+					redirect('auth', 'refresh');
+		}
+		else
+		{
+			show_404();
+		}
+
 	}
 
 	// create a new group

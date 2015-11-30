@@ -1,6 +1,6 @@
 <?php $this->load->view('layouts/header'); ?>
 <h1><?php echo lang('index_heading');?></h1>
-<p><i class="glyphicon glyphicon-user"></i><?php echo lang('index_subheading');?></p>
+<p><i class="glyphicon glyphicon-user"></i><?php echo lang('index_subheading');?><a href="<?=site_url('blog');?>">Блог</a><a class="pull-right" href="<?=site_url('auth/logout');?>">Изход</a></p>
 
 
 
@@ -26,7 +26,7 @@
 					<?php endforeach?>
 				</td>
 				<td><?php echo ($user->active) ? anchor("auth/deactivate/".$user->id, lang('index_active_link')) : anchor("auth/activate/". $user->id, lang('index_inactive_link'));?></td>
-				<td><?php echo anchor("auth/edit_user/".$user->id, 'Обнови') ;?></td>
+				<td><?php echo anchor("auth/edit_user/".$user->id, 'Обнови','class="btn btn-primary"') ;?> <?php echo anchor("auth/delete_user/".$user->id, 'Изтрий','class="btn btn-danger"') ;?></td>
 			</tr>
 		<?php endforeach;?>
 	</table>
